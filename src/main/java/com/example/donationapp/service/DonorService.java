@@ -96,9 +96,16 @@ public class DonorService {
             throw new PastDateException("Can't create appointment for past dates");
         }
 
-
         Donor donor = donorRepository.findById(appointmentDTO.donorEmail).get();
         BloodBank bloodBank = bloodBankRepository.findById(appointmentDTO.bloodbankId).get();
+
+        int numberOfAppointmentsInDate = (int)bloodBank.getAppointments().stream().filter(
+                ap -> DateUtils.isSameDay(ap.getDate(), date)).count();
+
+        if(numberOfAppointmentsInDate == bloodBank.getMaxAppointments()) {
+            throw new Exception("Maximum number of appointments reached");
+        }
+
         Doctor doctor = getDoctorMinAppointments(bloodBank);
 
         Appointment appointment = new Appointment(

@@ -1,6 +1,7 @@
 package com.example.donationapp.controllers;
 
 import com.example.donationapp.dto.AppointmentDoctorPreviewDTO;
+import com.example.donationapp.dto.DoctorAppointmentsPageDTO;
 import com.example.donationapp.service.AppointmentService;
 import com.example.donationapp.service.DoctorService;
 import org.apache.coyote.Response;
@@ -23,7 +24,7 @@ public class DoctorController {
 
     @GetMapping("/doctor/getAppointments")
     public ResponseEntity<?> getDoctorAppointments(@RequestParam String email) {
-        List<AppointmentDoctorPreviewDTO> appointmentDoctorPreviewDTOS = doctorService.getDoctorAppointments(email);
+        List<AppointmentDoctorPreviewDTO> appointmentDoctorPreviewDTOS = appointmentService.getDoctorAppointments(email);
         return ResponseEntity.ok(appointmentDoctorPreviewDTOS);
     }
 
@@ -39,5 +40,15 @@ public class DoctorController {
     public ResponseEntity<?> confirmAppointment(@RequestParam Integer appointmentId) {
         appointmentService.confirmAppointment(appointmentId);
         return ResponseEntity.ok("Appointment confirmed");
+    }
+
+    @GetMapping("doctor/getAppointmentsPage")
+    public ResponseEntity<?> getAppointmentsPage(@RequestParam String email,
+                                                 @RequestParam Integer page,
+                                                 @RequestParam Integer size) {
+
+            DoctorAppointmentsPageDTO doctorAppointmentsPageDTO =
+                    appointmentService.getDoctorAppointments(email, page, size);
+            return ResponseEntity.ok(doctorAppointmentsPageDTO);
     }
 }

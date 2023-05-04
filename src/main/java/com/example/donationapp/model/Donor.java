@@ -15,7 +15,7 @@ public class Donor extends User{
 
     public Donor(){}
 
-    public Donor(String name, String email, String password, District district, Role role, BloodType bloodType, String CNP) {
+    public Donor(String name, String email, String password, District district, Role role, BloodType bloodType, String CNP, String phoneNumber) {
         this.name = name;
         this.email = email;
         this.password = password;
@@ -24,6 +24,7 @@ public class Donor extends User{
         this.appointments = new ArrayList<Appointment>();
         this.bloodType = bloodType;
         this.CNP = CNP;
+        this.phoneNumber = phoneNumber;
     }
 
     public BloodType getBloodType() {

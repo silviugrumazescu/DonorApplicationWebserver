@@ -3,6 +3,9 @@ package com.example.donationapp.service;
 import com.example.donationapp.dto.AppointmentDTO;
 import com.example.donationapp.dto.AppointmentDonorPreviewDTO;
 import com.example.donationapp.dto.DonorEditDTO;
+import com.example.donationapp.factory.NotificationChannel;
+import com.example.donationapp.factory.NotificationSenderFactory;
+import com.example.donationapp.factory.NotificationType;
 import com.example.donationapp.model.*;
 import com.example.donationapp.repository.AppointmentRepository;
 import com.example.donationapp.repository.BloodBankRepository;
@@ -55,7 +58,8 @@ public class DonorService {
                     dataParser.parseDistrict(donorEditDTO.district),
                     Role.Donor,
                     dataParser.parseBloodType(donorEditDTO.bloodType),
-                    donorEditDTO.CNP
+                    donorEditDTO.CNP,
+                    donor.getPhoneNumber()
             );
         } catch (Exception ex) {
             throw ex;
@@ -96,18 +100,31 @@ public class DonorService {
             throw new PastDateException("Can't create appointment for past dates");
         }
 
-
         Donor donor = donorRepository.findById(appointmentDTO.donorEmail).get();
         BloodBank bloodBank = bloodBankRepository.findById(appointmentDTO.bloodbankId).get();
+
+        int numberOfAppointmentsInDate = (int)bloodBank.getAppointments().stream().filter(
+                ap -> DateUtils.isSameDay(ap.getDate(), date)).count();
+
+        if(numberOfAppointmentsInDate == bloodBank.getMaxAppointments()) {
+            throw new Exception("Maximum number of appointments reached");
+        }
+
         Doctor doctor = getDoctorMinAppointments(bloodBank);
 
         Appointment appointment = new Appointment(
                 donor,
                 doctor,
                 bloodBank,
-                date);
+                date,
+                dataParser.parseNotificationChannel(appointmentDTO.notifyType));
 
         appointmentRepository.save(appointment);
+
+        // de pus in facade
+        NotificationService notificationService = NotificationSenderFactory.getNotificationService(NotificationChannel.EMAIL_NOTIFICATION);
+        notificationService.send(NotificationType.CONFIRM, appointment);
+
     }
 
     public List<AppointmentDonorPreviewDTO> getDonorAppointments(String email) {

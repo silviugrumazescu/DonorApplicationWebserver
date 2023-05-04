@@ -42,24 +42,7 @@ public class DoctorService {
         return doctorPreviews;
     }
 
-    public List<AppointmentDoctorPreviewDTO> getDoctorAppointments(String email) {
-        Doctor doctor = doctorRepository.findById(email).get();
 
-        List<Appointment> appointments = doctor.getAppointments();
-        List<AppointmentDoctorPreviewDTO> appointmentDoctorPreviewDTOS = new ArrayList<>();
-
-        appointments.forEach(app -> {
-            appointmentDoctorPreviewDTOS.add(new AppointmentDoctorPreviewDTO(
-                    app.getId(),
-                    app.getDonor().getName(),
-                    app.getDate(),
-                    dataParser.formatDate(app.getDate()),
-                    app.getConfirmed()
-            ));
-        });
-
-        return appointmentDoctorPreviewDTOS;
-    }
 
 
 }

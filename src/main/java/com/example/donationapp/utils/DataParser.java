@@ -1,5 +1,6 @@
 package com.example.donationapp.utils;
 
+import com.example.donationapp.factory.NotificationChannel;
 import com.example.donationapp.model.BloodType;
 import com.example.donationapp.model.District;
 import org.hibernate.annotations.Comment;
@@ -34,6 +35,11 @@ public class DataParser {
     public String formatDate(Date date) {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd", Locale.ENGLISH);
         return formatter.format(date);
+    }
+
+    public NotificationChannel parseNotificationChannel(String notificationChannel) {
+        if(notificationChannel.equals("sms")) return NotificationChannel.SMS_NOTIFICATION;
+        else return NotificationChannel.EMAIL_NOTIFICATION;
     }
 
 

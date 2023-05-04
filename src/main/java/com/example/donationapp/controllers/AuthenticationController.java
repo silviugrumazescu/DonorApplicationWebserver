@@ -85,7 +85,8 @@ public class AuthenticationController {
                     dataParser.parseDistrict(registerRequest.getDistrict()),
                     Role.Donor,
                     dataParser.parseBloodType(registerRequest.getBloodType()),
-                    registerRequest.getCNP());
+                    registerRequest.getCNP(),
+                    registerRequest.getPhoneNumber());
 
         } catch(DataParser.InvalidInputException e) {
             return ResponseEntity.badRequest().body(e.getMessage());

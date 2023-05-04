@@ -26,6 +26,11 @@
                                             class="form-control form-control-lg" />
                                         <label class="form-label" for="cnpInput">CNP</label>
                                     </div>
+                                    <div class="form-outline form-white mb-4">
+                                        <input v-model="user.phoneNumber" type="phoneNumber" id="phoneInput"
+                                            class="form-control form-control-lg" />
+                                        <label class="form-label" for="phoneInput">Phone Number</label>
+                                    </div>
                                 </div>
                                 <div class="col">
                                     <div class="form-outline form-white mb-4">
@@ -100,7 +105,7 @@ export default {
     name: "RegisterForm",
     data() {
         return {
-            user: new User("", "", "", "", "", "", ""),
+            user: new User("", "", "", "", "", "", "", ""),
             errorMessage: "",
             bloodTypes: ['A', 'B', 'AB', 'O'],
             rhFactors: [

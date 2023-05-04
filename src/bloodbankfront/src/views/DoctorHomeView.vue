@@ -18,8 +18,8 @@
                     <h1>All appointments</h1>
                 </div>
                 <div class="row">
-                    <DataTable paginator :rows="5" v-model:selection="selectedAppointment" :value="appointments"
-                        selectionMode="single" tableStyle="min-width: 50rem">
+                    <DataTable lazy paginator :rows="5" :totalRecords="appointmentsTotalRecords" v-model:selection="selectedAppointment" :value="appointments"
+                        selectionMode="single" tableStyle="min-width: 50rem" @page="onPage($event)">
                         <Column field="formatedDate" header="Date"></Column>
                         <Column field="donorName" header="Donor"></Column>
                         <Column field="isConfirmed" header="Is Confirmed"></Column>
@@ -39,7 +39,6 @@
                 </Card>
             </div>
         </div>
-
     </div>
 </template>
 
@@ -53,6 +52,7 @@ import Button from 'primevue/button'
 import AppointmentService from '@/service/appointmentService';
 
 import DoctorService from '../service/doctorService'
+import doctorService from '../service/doctorService';
 
 
 export default {
@@ -66,9 +66,16 @@ export default {
     data() {
         return {
             appointments: [],
+            appointmentsTotalRecords: 0,
+            appointmentsLoading: false,
+            tableLazyParams: {
+                nrRows: 5,
+                page: 0
+            },
             currentDayAppointments: [],
             selectedAppointment: {},
             currentDate: new Date(),
+
         }
     },
     methods: {
@@ -84,6 +91,19 @@ export default {
                     this.currentDayAppointments = response.data;
                 })
         },
+        loadLazyAppointments() {
+            DoctorService.getAppointmentsPage(this.storedUser.email, this.tableLazyParams.page, this.tableLazyParams.nrRows)
+            .then(response => {
+                console.log(response);
+                this.appointments = response.data.appointments;
+                this.appointmentsTotalRecords = response.data.numberOfRecords;
+            })
+        },
+        onPage(event){
+            this.tableLazyParams.nrRows = event.rows;
+            this.tableLazyParams.page = event.page;
+            this.loadLazyAppointments();
+        },
         confirmAppointment() {
             DoctorService.confirmAppointment(this.selectedAppointment.appointmentId)
             .then(response => {
@@ -92,8 +112,8 @@ export default {
             
         },
         updateAppointments() {
-            this.getAllAppointments();
             this.getCurrentDayAppointments();
+            this.loadLazyAppointments();
         }
 
     },

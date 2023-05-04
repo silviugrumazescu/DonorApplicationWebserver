@@ -8,6 +8,7 @@ public class RegisterRequest {
     private String password;
     private String district;
     private String bloodType;
+    private String phoneNumber;
 
     public String getBloodType() {
         return bloodType;
@@ -57,4 +58,11 @@ public class RegisterRequest {
         this.district = district;
     }
 
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
 }

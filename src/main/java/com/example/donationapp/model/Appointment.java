@@ -1,9 +1,9 @@
 package com.example.donationapp.model;
-import com.mysql.cj.x.protobuf.MysqlxExpr;
+import com.example.donationapp.factory.NotificationChannel;
+import com.example.donationapp.factory.NotificationSenderFactory;
 import jakarta.persistence.*;
 
 import java.util.Date;
-import java.util.concurrent.ThreadPoolExecutor;
 
 @Entity
 public class Appointment {
@@ -21,15 +21,17 @@ public class Appointment {
     private BloodBank bloodBank;
     private Date date;
     private Boolean isConfirmed;
+    private NotificationChannel notificationChannel;
 
     public Appointment() {}
 
-    public Appointment(Donor donor, Doctor doctor, BloodBank bloodBank, Date date) {
+    public Appointment(Donor donor, Doctor doctor, BloodBank bloodBank, Date date, NotificationChannel notificationChannel) {
         this.donor = donor;
         this.doctor = doctor;
         this.bloodBank = bloodBank;
         this.date = date;
         this.isConfirmed = false;
+        this.notificationChannel = notificationChannel;
     }
 
     public BloodBank getBloodBank() {
@@ -67,5 +69,11 @@ public class Appointment {
     }
     public void setConfirmed(Boolean confirmed) {
         isConfirmed = confirmed;
+    }
+    public NotificationChannel getNotificationType() {
+        return notificationChannel;
+    }
+    public void setNotificationType(NotificationChannel notificationChannel) {
+        this.notificationChannel = notificationChannel;
     }
 }

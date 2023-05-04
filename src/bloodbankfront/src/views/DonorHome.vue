@@ -14,11 +14,26 @@
                 <div class="row">
                     <label for="selectBloodbank" class="mb-2 mt-2 text-center">Location</label>
                     <Dropdown id="selectBloodbank" v-model="selectedBloodbankId" :options="bloodbanks" optionLabel="name"
-                        optionValue="id" class="w-full md:w-14rem" />
+                        optionValue="id" class="w-full md:w-14rem" @change="getUnavailableDays"/>
                 </div>
                 <div class="row">
                     <label for="selectBloodbank" class="mb-2 mt-2 text-center">Date</label>
-                    <Calendar v-model="selectedDate" @date-select="dateSelected" dateFormat="yy/mm/dd" />
+                    <Calendar v-model="selectedDate" @date-select="dateSelected" dateFormat="yy/mm/dd"
+                        :minDate="createAppointmentMinDate" :disabledDates="calendarDisabledDays"/>
+                </div>
+                <div class="row">
+                    <p class="pt-3">Select reminder type</p>
+                </div>
+                <div class="row">
+                    <div class="flex align-items-center">
+                        <RadioButton v-model="notifyType" inputId="notify1" name="Email" value="email" />
+                        <label for="notify1" class="ml-2">Email</label>
+                    </div>
+                    <div class="flex align-items-center">
+                        <RadioButton v-model="notifyType" inputId="notify2" name="SMS" value="sms" />
+                        <label for="notify2" class="ml-2">SMS</label>
+                    </div>
+                    
                 </div>
                 <div class="row mt-4">
                     <Button :onClick="createAppointment" label="Create" />
@@ -26,11 +41,11 @@
                 <div class="row mt-4">
                     <p>{{ createErrorMessage }}</p>
                 </div>
-                
+
             </div>
             <div class="col-8 border">
-                <DataTable paginator :rows="5" v-model:selection="selectedAppointment" :value="appointments" tableStyle="min-width: 50rem"
-                    selectionMode="single">
+                <DataTable paginator :rows="5" v-model:selection="selectedAppointment" :value="appointments"
+                    tableStyle="min-width: 50rem" selectionMode="single">
                     <Column field="date" header="Date"></Column>
                     <Column field="locationName" header="Location"></Column>
                     <Column field="address" header="Address"></Column>
@@ -69,8 +84,8 @@
         </div>
         <div class="row justify-content-center">
             <div class="col-8 border">
-                <DataTable paginator :rows="5" v-model:selection="selectedAppointment" :value="confirmedAppointments" tableStyle="min-width: 50rem"
-                    >
+                <DataTable paginator :rows="5" v-model:selection="selectedAppointment" :value="confirmedAppointments"
+                    tableStyle="min-width: 50rem">
                     <Column field="date" header="Date"></Column>
                     <Column field="locationName" header="Location"></Column>
                     <Column field="address" header="Address"></Column>
@@ -92,9 +107,11 @@ import DonorService from '@/service/donorService'
 import Dropdown from 'primevue/dropdown'
 import Calendar from 'primevue/calendar'
 import Button from 'primevue/button'
+import RadioButton from 'primevue/radiobutton'
 
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
+import appointmentService from '../service/appointmentService'
 
 
 
@@ -105,7 +122,8 @@ export default {
         Calendar,
         Button,
         Column,
-        DataTable
+        DataTable,
+        RadioButton
     },
     data() {
         return {
@@ -113,10 +131,16 @@ export default {
             selectedBloodbankId: "",
             selectedDate: "",
             appointments: [],
+            notifyType: "",
             confirmedAppointments: [],
             selectedAppointment: {},
             createErrorMessage: "",
-            cancelErrorMessage: ""
+            cancelErrorMessage: "",
+
+            calendarDisabledDays: [],
+
+            createAppointmentMinDate: null,
+            createAppointmentMaxDate: null
         }
     },
     beforeMount() {
@@ -128,7 +152,17 @@ export default {
                 console.log(err);
             })
 
-        this.updateAppointments()
+        this.updateAppointments();
+
+    },
+    created() {
+        let today = new Date();
+
+        this.createAppointmentMinDate = new Date();
+        this.createAppointmentMaxDate = new Date(new Date().setDate(today.getDate() + 30));
+
+        console.log(this.createAppointmentMinDate);
+        console.log(this.createAppointmentMaxDate);
     },
     methods: {
         dateSelected() {
@@ -136,16 +170,16 @@ export default {
         },
         createAppointment() {
             var formatedDate = this.selectedDate.getFullYear() + '/' + (this.selectedDate.getMonth() + 1) + '/' + (this.selectedDate.getDate());
-            const app = new Appointment(this.storedUser.email, this.selectedBloodbankId, formatedDate);
+            const app = new Appointment(this.storedUser.email, this.selectedBloodbankId, formatedDate, this.notifyType);
             AppointmentService.createAppointment(app)
-            .then(response => {
-                this.createErrorMessage = "";
-                this.updateAppointments();
-            })
-            .catch(err => {
-                console.log(err);
-                this.createErrorMessage = err.response.data;
-            });
+                .then(response => {
+                    this.createErrorMessage = "";
+                    this.updateAppointments();
+                })
+                .catch(err => {
+                    console.log(err);
+                    this.createErrorMessage = err.response.data;
+                });
 
         },
         updateAppointments() {
@@ -155,12 +189,12 @@ export default {
                     this.confirmedAppointments = [];
 
                     const appoint = response.data;
-                    for(let i = 0; i < appoint.length; i++) {
-                        if(appoint[i].isConfirmed == true) {
+                    for (let i = 0; i < appoint.length; i++) {
+                        if (appoint[i].isConfirmed == true) {
                             this.confirmedAppointments.push(appoint[i]);
                         } else {
                             this.appointments.push(appoint[i]);
-                        }   
+                        }
                     }
                 })
                 .catch(err => {
@@ -178,8 +212,18 @@ export default {
                     console.log(err);
                     this.cancelErrorMessage = err.response.data;
                 })
-        }
+        },
 
+        getUnavailableDays() {
+            AppointmentService.getUnavailableDays(this.selectedBloodbankId)
+                    .then(response => {
+                        console.log(response.data);
+
+                        for(let i = 0; i < response.data.length; i++) {
+                            this.calendarDisabledDays[i] = new Date(response.data[i]);
+                        }
+                    })
+        }
     },
     computed: {
         storedUser() {

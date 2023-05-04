@@ -21,6 +21,20 @@
                     <Calendar v-model="selectedDate" @date-select="dateSelected" dateFormat="yy/mm/dd"
                         :minDate="createAppointmentMinDate" :disabledDates="calendarDisabledDays"/>
                 </div>
+                <div class="row">
+                    <p class="pt-3">Select reminder type</p>
+                </div>
+                <div class="row">
+                    <div class="flex align-items-center">
+                        <RadioButton v-model="notifyType" inputId="notify1" name="Email" value="email" />
+                        <label for="notify1" class="ml-2">Email</label>
+                    </div>
+                    <div class="flex align-items-center">
+                        <RadioButton v-model="notifyType" inputId="notify2" name="SMS" value="sms" />
+                        <label for="notify2" class="ml-2">SMS</label>
+                    </div>
+                    
+                </div>
                 <div class="row mt-4">
                     <Button :onClick="createAppointment" label="Create" />
                 </div>
@@ -93,6 +107,7 @@ import DonorService from '@/service/donorService'
 import Dropdown from 'primevue/dropdown'
 import Calendar from 'primevue/calendar'
 import Button from 'primevue/button'
+import RadioButton from 'primevue/radiobutton'
 
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
@@ -107,7 +122,8 @@ export default {
         Calendar,
         Button,
         Column,
-        DataTable
+        DataTable,
+        RadioButton
     },
     data() {
         return {
@@ -115,6 +131,7 @@ export default {
             selectedBloodbankId: "",
             selectedDate: "",
             appointments: [],
+            notifyType: "",
             confirmedAppointments: [],
             selectedAppointment: {},
             createErrorMessage: "",
@@ -153,7 +170,7 @@ export default {
         },
         createAppointment() {
             var formatedDate = this.selectedDate.getFullYear() + '/' + (this.selectedDate.getMonth() + 1) + '/' + (this.selectedDate.getDate());
-            const app = new Appointment(this.storedUser.email, this.selectedBloodbankId, formatedDate);
+            const app = new Appointment(this.storedUser.email, this.selectedBloodbankId, formatedDate, this.notifyType);
             AppointmentService.createAppointment(app)
                 .then(response => {
                     this.createErrorMessage = "";

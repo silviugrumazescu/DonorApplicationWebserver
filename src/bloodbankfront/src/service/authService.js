@@ -29,7 +29,8 @@ class AuthService {
             cnp: user.cnp,
             password: user.password,
             district: user.district,
-            bloodType: user.bloodType
+            bloodType: user.bloodType,
+            phoneNumber: user.phoneNumber
         })
     }
 

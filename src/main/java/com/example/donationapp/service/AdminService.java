@@ -3,6 +3,7 @@ package com.example.donationapp.service;
 import com.example.donationapp.dto.BloodbankPreview;
 import com.example.donationapp.dto.DoctorEditDTO;
 import com.example.donationapp.dto.DoctorPreview;
+import com.example.donationapp.mappers.DoctorMapper;
 import com.example.donationapp.model.*;
 import com.example.donationapp.repository.BloodBankRepository;
 import com.example.donationapp.repository.DoctorRepository;
@@ -29,6 +30,8 @@ public class AdminService {
     BloodBankRepository bloodBankRepository;
     @Autowired
     DataParser dataParser;
+    @Autowired
+    DoctorMapper doctorMapper   ;
 
     public DoctorEditDTO getDoctor(String email) {
         Doctor d = doctorRepository.findById(email).get();

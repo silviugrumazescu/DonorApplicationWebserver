@@ -3,8 +3,7 @@ package com.example.donationapp.controllers;
 import com.example.donationapp.dto.AppointmentDTO;
 import com.example.donationapp.dto.AppointmentDonorPreviewDTO;
 import com.example.donationapp.dto.DonorEditDTO;
-import com.example.donationapp.service.AppointmentService;
-import com.example.donationapp.service.DonorService;
+import com.example.donationapp.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -43,6 +42,7 @@ public class DonorController {
     public ResponseEntity<?> createAppointment(@RequestBody AppointmentDTO appointmentDTO) {
         try {
             donorService.createAppointment(appointmentDTO);
+
         } catch(Exception ex) {
             return ResponseEntity.badRequest().body(ex.getMessage());
         }

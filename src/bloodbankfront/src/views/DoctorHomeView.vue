@@ -39,7 +39,6 @@
                 </Card>
             </div>
         </div>
-
     </div>
 </template>
 

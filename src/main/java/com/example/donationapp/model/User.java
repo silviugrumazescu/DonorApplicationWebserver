@@ -12,16 +12,18 @@ public class User {
     protected String password;
     protected District district;
     protected Role role;
+    protected String phoneNumber;
 
     public User(){}
 
-    public User(String name, String email, String password, District district, Role role, String CNP) {
+    public User(String name, String email, String password, District district, Role role, String CNP, String phoneNumber) {
         this.name = name;
         this.email = email;
         this.password = password;
         this.district = district;
         this.role = role;
         this.CNP = CNP;
+        this.phoneNumber = phoneNumber;
     }
 
     public String getName() {
@@ -61,4 +63,11 @@ public class User {
         this.role = role;
     }
 
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
 }

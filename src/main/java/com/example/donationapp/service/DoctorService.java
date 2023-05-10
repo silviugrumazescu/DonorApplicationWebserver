@@ -1,6 +1,7 @@
 package com.example.donationapp.service;
 
 import com.example.donationapp.dto.AppointmentDoctorPreviewDTO;
+import com.example.donationapp.dto.DoctorEditDTO;
 import com.example.donationapp.dto.DoctorPreview;
 import com.example.donationapp.model.*;
 import com.example.donationapp.repository.BloodBankRepository;
@@ -8,8 +9,10 @@ import com.example.donationapp.repository.DoctorRepository;
 import com.example.donationapp.utils.DataParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.parameters.P;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.print.Doc;
 import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -29,37 +32,62 @@ public class DoctorService {
     public DoctorService() {
     }
 
-    public ArrayList<DoctorPreview> getAllDoctors() {
+    public List<Doctor> getAllDoctors() {
         List<Doctor> doctors = doctorRepository.findAll();
-        ArrayList<DoctorPreview> doctorPreviews = new ArrayList<>();
-        doctors.forEach( (d) -> {
-            doctorPreviews.add(new DoctorPreview(
-                    d.getEmail(),
-                    d.getName(),
-                    d.getDistrict().name()));
-        });
-
-        return doctorPreviews;
+        return doctors;
     }
 
-    public List<AppointmentDoctorPreviewDTO> getDoctorAppointments(String email) {
-        Doctor doctor = doctorRepository.findById(email).get();
+    public List<Doctor> getDoctorsByDistrict(District district) {
+        List<Doctor> doctors = doctorRepository.findDoctorByDistrict(district);
 
-        List<Appointment> appointments = doctor.getAppointments();
-        List<AppointmentDoctorPreviewDTO> appointmentDoctorPreviewDTOS = new ArrayList<>();
-
-        appointments.forEach(app -> {
-            appointmentDoctorPreviewDTOS.add(new AppointmentDoctorPreviewDTO(
-                    app.getId(),
-                    app.getDonor().getName(),
-                    app.getDate(),
-                    dataParser.formatDate(app.getDate()),
-                    app.getConfirmed()
-            ));
-        });
-
-        return appointmentDoctorPreviewDTOS;
+        return doctors;
     }
 
+    public Doctor getDoctor(String email) {
+        Doctor d = doctorRepository.findById(email).get();
+        return d;
+    }
+
+    public void updateDoctor(String email, String CNP, String name, String district, Integer bloodbankId) {
+        Doctor d = doctorRepository.findById(email).get();
+
+        d.setCNP(CNP);
+        d.setName(name);
+        try {
+            d.setDistrict(dataParser.parseDistrict(district));
+        } catch(DataParser.InvalidInputException ex) {
+            System.out.println(ex.getMessage());
+        }
+        BloodBank selectedBloodbank = bloodBankRepository.findById(bloodbankId).get();
+        d.setBloodBank1(selectedBloodbank);
+        doctorRepository.save(d);
+    }
+
+    public void createDoctor(String name,
+                             String email,
+                             String password,
+                             District district,
+                             Integer bloodbankId,
+                             String CNP) throws Exception {
+
+        if(doctorRepository.existsById(email)) {
+            throw new Exception("Email already in use");
+        }
+
+        BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
+        String encodedPass = bCryptPasswordEncoder.encode(password);
+        BloodBank bloodBank = bloodBankRepository.findById(bloodbankId).get();
+
+        Doctor doctor = new Doctor(name, email, encodedPass, district, Role.Doctor, bloodBank, CNP);
+
+        doctorRepository.save(doctor);
+    }
+
+    public void deleteDoctor(String email) throws Exception {
+        if(!doctorRepository.existsById(email)) {
+            throw new Exception("Doctor doesn't exist");
+        }
+        doctorRepository.deleteById(email);
+    }
 
 }

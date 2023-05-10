@@ -21,6 +21,7 @@ public class BloodBank {
     private Time programStart;
     private Time programEnd;
     private String openDays = "L-V";
+    private Integer maxAppointments;
     @OneToMany(mappedBy = "bloodBank1")
     private List<Doctor> doctors;
     @OneToMany(mappedBy = "bloodBank")
@@ -94,5 +95,10 @@ public class BloodBank {
     public void setDoctors(ArrayList<Doctor> doctors) {
         this.doctors = doctors;
     }
-
+    public Integer getMaxAppointments() {
+        return maxAppointments;
+    }
+    public void setMaxAppointments(Integer maxAppointments) {
+        this.maxAppointments = maxAppointments;
+    }
 }

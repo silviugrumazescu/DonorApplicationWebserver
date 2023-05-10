@@ -3,6 +3,7 @@ package com.example.donationapp.service;
 import com.example.donationapp.dto.BloodbankPreview;
 import com.example.donationapp.dto.DoctorEditDTO;
 import com.example.donationapp.dto.DoctorPreview;
+import com.example.donationapp.mappers.DoctorMapper;
 import com.example.donationapp.model.*;
 import com.example.donationapp.repository.BloodBankRepository;
 import com.example.donationapp.repository.DoctorRepository;
@@ -29,36 +30,8 @@ public class AdminService {
     BloodBankRepository bloodBankRepository;
     @Autowired
     DataParser dataParser;
-
-    public DoctorEditDTO getDoctor(String email) {
-        Doctor d = doctorRepository.findById(email).get();
-        return new DoctorEditDTO(d.getEmail(), d.getCNP(), d.getName(), d.getPassword(), d.getDistrict(), d.getBloodBank1().getId());
-    }
-
-    public ArrayList<DoctorPreview> getDoctorsByDistrict(District district) {
-        List<Doctor> doctors = doctorRepository.findDoctorByDistrict(district);
-
-        ArrayList<DoctorPreview> doctorPreviews = new ArrayList<DoctorPreview>();
-        doctors.forEach(doctor -> {doctorPreviews.add(new DoctorPreview(
-                doctor.getEmail(),
-                doctor.getName(),
-                doctor.getDistrict().name()
-        ));});
-        return doctorPreviews;
-    }
-
-    public ArrayList<BloodbankPreview> getBloodbanksByDistrict(District district) {
-        List<BloodBank> bloodBanks = bloodBankRepository.findBloodBankByDistrict(district);
-
-        ArrayList<BloodbankPreview> bloodbankPreviews = new ArrayList<>();
-        bloodBanks.forEach(b -> {bloodbankPreviews.add(new BloodbankPreview(
-                b.getId(),
-                b.getName(),
-                b.getDistrict()
-        ));});
-
-        return bloodbankPreviews;
-    }
+    @Autowired
+    DoctorMapper doctorMapper   ;
 
     public void updateDoctor(DoctorEditDTO doctorEditDTO) {
         Doctor d = doctorRepository.findById(doctorEditDTO.email).get();

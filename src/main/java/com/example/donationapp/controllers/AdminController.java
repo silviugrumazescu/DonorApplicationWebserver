@@ -3,10 +3,13 @@ package com.example.donationapp.controllers;
 import com.example.donationapp.dto.BloodbankPreview;
 import com.example.donationapp.dto.DoctorEditDTO;
 import com.example.donationapp.dto.DoctorPreview;
+import com.example.donationapp.facade.BloodbankFacade;
+import com.example.donationapp.facade.DoctorFacade;
 import com.example.donationapp.model.*;
 import com.example.donationapp.repository.BloodBankRepository;
 import com.example.donationapp.repository.DoctorRepository;
 import com.example.donationapp.service.AdminService;
+import com.example.donationapp.service.BloodbankService;
 import com.example.donationapp.service.DoctorService;
 import com.example.donationapp.utils.DataParser;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +28,10 @@ public class AdminController {
     @Autowired
     DoctorService doctorService;
     @Autowired
+    DoctorFacade doctorFacade;
+    @Autowired
+    BloodbankFacade bloodbankFacade;
+    @Autowired
     AdminService adminService;
     @Autowired
     BloodBankRepository bloodBankRepository;
@@ -36,7 +43,7 @@ public class AdminController {
 
     @GetMapping("/admin/getDoctorsPreview")
     public ResponseEntity<?> getDoctors() {
-        return ResponseEntity.ok(doctorService.getAllDoctors());
+        return ResponseEntity.ok(doctorFacade.getAllDoctors());
     }
 
     @GetMapping("/admin/getDoctorsByDistrict")
@@ -48,7 +55,7 @@ public class AdminController {
             return ResponseEntity.badRequest().body(ex.getMessage());
         }
 
-        List<DoctorPreview> doctorPreviews = adminService.getDoctorsByDistrict(d);
+        List<DoctorPreview> doctorPreviews = doctorFacade.getDoctorsByDistrict(d);
 
         return ResponseEntity.ok().body(doctorPreviews);
     }
@@ -62,13 +69,13 @@ public class AdminController {
             return ResponseEntity.badRequest().body(ex.getMessage());
         }
 
-        List<BloodbankPreview> bloodbankPreviews = adminService.getBloodbanksByDistrict(d);
+        List<BloodbankPreview> bloodbankPreviews = bloodbankFacade.getBloodbanksByDistrict(d);
         return ResponseEntity.ok(bloodbankPreviews);
     }
 
     @GetMapping("/admin/getDoctor")
     public ResponseEntity<?> getDoctor(@RequestParam String email) {
-        DoctorEditDTO u = adminService.getDoctor(email);
+        DoctorEditDTO u = doctorFacade.getDoctor(email);
         if(u != null) {
             return ResponseEntity.ok(u);
         } else {
@@ -85,15 +92,14 @@ public class AdminController {
 
     @PostMapping("/admin/updateDoctorAccount")
     public ResponseEntity<?> updateDoctorAccount(@RequestBody DoctorEditDTO doctorEditDTO) {
-        adminService.updateDoctor(doctorEditDTO);
-
+        doctorFacade.updateDoctor(doctorEditDTO);
         return ResponseEntity.ok("Succesfully updated admin");
     }
 
     @PostMapping("/admin/createDoctorAccount")
     public ResponseEntity<?> createDoctorAccount(@RequestBody DoctorEditDTO doctorEditDTO) {
         try {
-            adminService.createDoctor(doctorEditDTO);
+            doctorFacade.createDoctor(doctorEditDTO);
         } catch (Exception ex) {
             ResponseEntity.badRequest().body(ex.getMessage());
         }
@@ -103,15 +109,12 @@ public class AdminController {
 
     @DeleteMapping("/admin/deleteDoctorAccount/{email}")
     public ResponseEntity<?> deleteDoctorAccount(@PathVariable String email) {
-
         try {
-            adminService.deleteDoctor(email);
+            doctorFacade.deleteDoctor(email);
         } catch (Exception ex) {
             return ResponseEntity.badRequest().body(ex.getMessage());
         }
-
         return ResponseEntity.ok("Doctor succesfully deleted!");
-
     }
 
     @PostMapping("/admin/insert")

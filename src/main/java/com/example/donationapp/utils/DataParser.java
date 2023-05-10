@@ -3,6 +3,7 @@ package com.example.donationapp.utils;
 import com.example.donationapp.factory.NotificationChannel;
 import com.example.donationapp.model.BloodType;
 import com.example.donationapp.model.District;
+import com.example.donationapp.service.DonorService;
 import org.hibernate.annotations.Comment;
 import org.springframework.stereotype.Component;
 
@@ -35,6 +36,17 @@ public class DataParser {
     public String formatDate(Date date) {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd", Locale.ENGLISH);
         return formatter.format(date);
+    }
+
+    public Date parseDate(String date) throws Exception{
+        SimpleDateFormat formatter = new SimpleDateFormat("yy/MM/dd", Locale.ENGLISH);
+        Date parsedDate;
+        try {
+            parsedDate = formatter.parse(date);
+            return parsedDate;
+        } catch (Exception ex) {
+            throw ex;
+        }
     }
 
     public NotificationChannel parseNotificationChannel(String notificationChannel) {

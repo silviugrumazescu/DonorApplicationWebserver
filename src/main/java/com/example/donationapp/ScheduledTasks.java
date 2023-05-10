@@ -23,12 +23,12 @@ public class ScheduledTasks {
     public void notifyAppointmentsReminder() {
         Date currentDate = new Date();
 
-        List<Appointment> appointments =  appointmentRepository.findAll();
+        List<Appointment> appointments = appointmentRepository.findAll();
 
         appointments.forEach(appointment -> {
 
             long diffInMillies = Math.abs(currentDate.getTime() - appointment.getDate().getTime());
-            if(diffInMillies > 86400000 && diffInMillies < 172800000) { // > 24 h, < 48 h
+            if (diffInMillies > 86400000 && diffInMillies < 172800000) { // > 24 h, < 48 h
                 NotificationService notificationService =
                         NotificationSenderFactory.getNotificationService(appointment.getNotificationType());
                 notificationService.send(NotificationType.REMINDER, appointment);
@@ -38,6 +38,4 @@ public class ScheduledTasks {
         });
 
     }
-
-
 }

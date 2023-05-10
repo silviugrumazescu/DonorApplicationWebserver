@@ -7,6 +7,9 @@ import ClickSend.Model.SmsMessageCollection;
 import com.example.donationapp.factory.NotificationType;
 import com.example.donationapp.model.Appointment;
 import com.example.donationapp.utils.DataParser;
+import com.twilio.Twilio;
+import com.twilio.rest.api.v2010.account.Message;
+import com.twilio.type.PhoneNumber;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -15,44 +18,29 @@ import java.util.Arrays;
 
 public class SmsService implements NotificationService{
 
-    private ApiClient clickSendApiClient;
-
-    @Value("${clickSend-username}")
-    private String clickSendUsername;
-    @Value("${clickSend-apiKey}")
-    private String clickSendApiKey;
+    private final String ACCOUNT_SID = "AC101f3250dadc796a689a4edba7ba6c45";
+    private String AUTH_TOKEN = "443c9801f437772ceee364da1da8a141";
+    private String TWILIO_NUMBER = "+13204387855";
 
 
     public SmsService() {
-
-        this.clickSendApiClient = new ApiClient();
-        clickSendApiClient.setUsername(clickSendUsername);
-        clickSendApiClient.setPassword(clickSendApiKey);
     }
 
     public void send(NotificationType notificationType, Appointment appointment) {
-
-        SmsApi smsApi = new SmsApi(clickSendApiClient);
-        SmsMessage smsMessage = new SmsMessage();
-
-        String message;
+        Twilio.init(ACCOUNT_SID, AUTH_TOKEN);
+        String text;
         if(notificationType == NotificationType.CONFIRM) {
-            message = composeConfirmSms(appointment);
+            text = composeConfirmSms(appointment);
         } else {
-            message = composeReminderSms(appointment);
+            text = composeReminderSms(appointment);
         }
-        smsMessage.body(message);
-        smsMessage.to(appointment.getDonor().getPhoneNumber());
-        smsMessage.source("Bloodbank");
 
-        SmsMessageCollection smsMessageCollection = new SmsMessageCollection();
-        smsMessageCollection.messages(Arrays.asList(smsMessage));
-
-        try {
-            smsApi.smsSendPost(smsMessageCollection);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
+        Message message = Message.creator(
+                new PhoneNumber("+40756326022"),
+                new PhoneNumber(TWILIO_NUMBER),
+                text
+        ).create();
+        System.out.println("****************SMS SENT*********");
     }
 
     public String composeReminderSms(Appointment appointment) {
